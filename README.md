@@ -50,3 +50,11 @@ A minimal database-backed application for tracking laboratory sample workflow st
 - Audit logging for all state changes.
 - Documented test plan and validation approach suitable for a clinical environment.
 - Reproducible deployment via Docker; environment configuration via env vars.
+
+## Clinical and Privacy Safeguards
+
+This repository is a non-clinical educational prototype. It must not be used with real patient data, clinical sequencing data, clinical results, or production systems.
+
+The prototype demonstrates foundational controls—validation, unique identifiers, timestamps, audit logging, automated tests, CI, and reproducible containerization—but it is not clinically validated.
+
+A production clinical implementation would require formal requirements traceability, risk assessment, access control, authentication, encryption, approved hosting, backup/recovery testing, LIMS interface validation, privacy/security review, user acceptance testing, SOPs, controlled release, and ongoing monitoring.

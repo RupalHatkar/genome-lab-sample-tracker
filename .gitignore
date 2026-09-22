@@ -1,4 +1,14 @@
-.Rproj.user
+# Local SQLite development database and temporary SQLite files
+data/
+
+# RStudio and R session files
 .Rhistory
 .RData
 .Ruserdata
+.Rproj.user/
+
+# Local environment configuration
+.Renviron
+
+# macOS Finder metadata
+.DS_Store

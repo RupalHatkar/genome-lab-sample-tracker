@@ -11,5 +11,17 @@ services:
     volumes:
       - sample_tracker_data:/data
 
+  shiny-ui:
+    build:
+      context: ../ui-shiny
+      dockerfile: Dockerfile
+    ports:
+      - "3838:3838"
+    environment:
+      API_BASE_URL: "http://api:8001"
+      SHINY_PORT: "3838"
+    depends_on:
+      - api
+
 volumes:
   sample_tracker_data:

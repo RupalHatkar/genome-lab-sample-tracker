@@ -58,3 +58,35 @@ This repository is a non-clinical educational prototype. It must not be used wit
 The prototype demonstrates foundational controls—validation, unique identifiers, timestamps, audit logging, automated tests, CI, and reproducible containerization—but it is not clinically validated.
 
 A production clinical implementation would require formal requirements traceability, risk assessment, access control, authentication, encryption, approved hosting, backup/recovery testing, LIMS interface validation, privacy/security review, user acceptance testing, SOPs, controlled release, and ongoing monitoring.
+
+## User Interfaces
+
+The prototype includes two demonstration interfaces that use synthetic data only.
+
+### Shiny UI
+
+Start the API and Shiny UI together:
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Open:
+
+- Shiny UI: `http://127.0.0.1:3838`
+- API health endpoint: `http://127.0.0.1:8001/health`
+
+The Shiny UI supports creating a sample, listing samples, and updating workflow status. It connects to the API through the internal Docker Compose network.
+
+### Static HTML/JavaScript UI
+
+The static UI is located at `ui-static/index.html`. For local development, serve it from the project root:
+
+```bash
+cd ui-static
+python3 -m http.server 8080
+```
+
+Open `http://127.0.0.1:8080`.
+
+The API enables CORS for this demonstration interface. The permissive development setting must be restricted to approved origins before any production deployment.

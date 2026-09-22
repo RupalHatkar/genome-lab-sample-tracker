@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Genome Lab Sample Tracker – Static UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { margin-bottom: 0.5rem; }
+    label { display: inline-block; width: 140px; }
+    input, select { padding: 4px; margin-bottom: 8px; }
+    button { padding: 4px 10px; margin-right: 6px; }
+    table { border-collapse: collapse; margin-top: 1rem; width: 100%; max-width: 900px; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
+    th { background: #f5f5f5; }
+    .error { color: #b00020; margin-top: 0.5rem; }
+    .success { color: #006400; margin-top: 0.5rem; }
+    .section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+<h1>Genome Lab Sample Tracker – Static UI</h1>
+<p>This is a minimal demo UI calling the Plumber API. All data are synthetic.</p>
+
+<div class="section">
+  <h2>Create Sample</h2>
+  <form id="create-sample-form">
+    <div>
+      <label for="sample_id">Sample ID:</label>
+      <input type="text" id="sample_id" name="sample_id" required />
+    </div>
+    <div>
+      <label for="patient_id">Patient ID:</label>
+      <input type="text" id="patient_id" name="patient_id" required />
+    </div>
+    <div>
+      <label for="test_type">Test Type:</label>
+      <input type="text" id="test_type" name="test_type" required />
+    </div>
+    <div>
+      <label for="status">Status:</label>
+      <select id="status" name="status">
+        <option value="RECEIVED">RECEIVED</option>
+        <option value="EXTRACTED">EXTRACTED</option>
+        <option value="SEQUENCED">SEQUENCED</option>
+        <option value="REPORTED">REPORTED</option>
+      </select>
+    </div>
+    <button type="submit">Create Sample</button>
+  </form>
+  <div id="create-result" class=""></div>
+</div>
+
+<div class="section">
+  <h2>List Samples</h2>
+  <button id="list-samples-btn">Refresh List</button>
+  <table id="samples-table">
+    <thead>
+      <tr>
+        <th>Sample ID</th>
+        <th>Patient ID</th>
+        <th>Test Type</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Updated At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
+<div class="section">
+  <h2>Update Sample Status</h2>
+  <form id="update-status-form">
+    <div>
+      <label for="update_sample_id">Sample ID:</label>
+      <input type="text" id="update_sample_id" name="update_sample_id" required />
+    </div>
+    <div>
+      <label for="update_status">New Status:</label>
+      <select id="update_status" name="update_status">
+        <option value="RECEIVED">RECEIVED</option>
+        <option value="EXTRACTED">EXTRACTED</option>
+        <option value="SEQUENCED">SEQUENCED</option>
+        <option value="REPORTED">REPORTED</option>
+      </select>
+    </div>
+    <button type="submit">Update Status</button>
+  </form>
+  <div id="update-result" class=""></div>
+</div>
+
+<script>
+  const API_BASE = 'http://127.0.0.1:8001';
+
+  const createResultEl = document.getElementById('create-result');
+  const updateResultEl = document.getElementById('update-result');
+  const samplesTableBody = document.querySelector('#samples-table tbody');
+
+  function showMessage(el, message, isError = false) {
+    el.textContent = message;
+    el.className = isError ? 'error' : 'success';
+  }
+
+  async function createSample(event) {
+    event.preventDefault();
+    createResultEl.textContent = '';
+
+    const payload = {
+      sample_id: document.getElementById('sample_id').value.trim(),
+      patient_id: document.getElementById('patient_id').value.trim(),
+      test_type: document.getElementById('test_type').value.trim(),
+      status: document.getElementById('status').value
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/samples`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMessage(createResultEl, data.error || 'Failed to create sample', true);
+      } else {
+        showMessage(createResultEl, 'Sample created successfully.');
+        loadSamples();
+      }
+    } catch (err) {
+      showMessage(createResultEl, 'Network error while creating sample.', true);
+    }
+  }
+
+  async function updateStatus(event) {
+    event.preventDefault();
+    updateResultEl.textContent = '';
+
+    const sampleId = document.getElementById('update_sample_id').value.trim();
+    const payload = {
+      status: document.getElementById('update_status').value
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/samples/${sampleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showMessage(updateResultEl, data.error || 'Failed to update status', true);
+      } else {
+        showMessage(updateResultEl, 'Status updated successfully.');
+        loadSamples();
+      }
+    } catch (err) {
+      showMessage(updateResultEl, 'Network error while updating status.', true);
+    }
+  }
+
+  async function loadSamples() {
+    samplesTableBody.innerHTML = '';
+    try {
+      const res = await fetch(`${API_BASE}/samples`);
+      const data = await res.json();
+      if (!res.ok) {
+        return;
+      }
+      const samples = (data && Array.isArray(data.samples)) ? data.samples : [];
+      samples.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${s.sample_id || ''}</td>
+          <td>${s.patient_id || ''}</td>
+          <td>${s.test_type || ''}</td>
+          <td>${s.status || ''}</td>
+          <td>${s.created_at || ''}</td>
+          <td>${s.updated_at || ''}</td>
+          <td>
+            <button data-sample-id="${s.sample_id || ''}">View</button>
+          </td>
+        `;
+        samplesTableBody.appendChild(tr);
+      });
+
+      document.querySelectorAll('#samples-table button[data-sample-id]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const sampleId = btn.getAttribute('data-sample-id');
+          try {
+            const res = await fetch(`${API_BASE}/samples/${sampleId}`);
+            const s = await res.json();
+            if (!res.ok) {
+              alert('Error loading sample: ' + (s.error || 'unknown error'));
+              return;
+            }
+            alert(
+              'Sample ID: ' + s.sample_id + '\n' +
+              'Patient ID: ' + s.patient_id + '\n' +
+              'Test Type: ' + s.test_type + '\n' +
+              'Status: ' + s.status + '\n' +
+              'Created At: ' + s.created_at + '\n' +
+              'Updated At: ' + s.updated_at
+            );
+          } catch (err) {
+            alert('Network error while loading sample.');
+          }
+        });
+      });
+    } catch (err) {
+      // ignore
+    }
+  }
+
+  document.getElementById('create-sample-form').addEventListener('submit', createSample);
+  document.getElementById('update-status-form').addEventListener('submit', updateStatus);
+  document.getElementById('list-samples-btn').addEventListener('click', loadSamples);
+
+  loadSamples();
+</script>
+
+</body>
+</html>

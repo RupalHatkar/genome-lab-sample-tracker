@@ -10,6 +10,18 @@ source("utils.R")
 
 iso_now <- function() format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
 
+#* @filter cors
+function(req, res) {
+  res$setHeader("Access-Control-Allow-Origin", "*")
+  res$setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+  res$setHeader("Access-Control-Allow-Headers", "Content-Type")
+  if (req$REQUEST_METHOD == "OPTIONS") {
+    res$status <- 200
+    return(list())
+  }
+  plumber::forward()
+}
+
 #* @param req
 #* @get /health
 function(req) {

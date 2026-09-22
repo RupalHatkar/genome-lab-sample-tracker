@@ -1,8 +1,11 @@
-# entrypoint.R
 library(plumber)
 
-# Source API
-pr <- plumber::plumb("R/api.R")
+api_path <- Sys.getenv("API_PATH", "R/api.R")
+port <- as.integer(Sys.getenv("PORT", "8001"))
 
-port <- as.integer(Sys.getenv("PORT", 8000))
-pr$run(port = port, host = "0.0.0.0")
+pr <- plumber::plumb(api_path)
+
+pr$run(
+  host = "0.0.0.0",
+  port = port
+)

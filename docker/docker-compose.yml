@@ -1,0 +1,15 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      PORT: "8001"
+      SAMPLE_TRACKER_DB: "/data/samples.sqlite"
+    volumes:
+      - sample_tracker_data:/data
+
+volumes:
+  sample_tracker_data:

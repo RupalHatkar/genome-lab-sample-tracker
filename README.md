@@ -1,4 +1,5 @@
 # Genome Lab Sample Tracker (R + Plumber)
+Non-clinical educational prototype; synthetic data only; not for clinical use.
 
 A minimal database-backed application for tracking laboratory sample workflow status, designed to demonstrate software engineering practices relevant to clinical genomics informatics.
 
